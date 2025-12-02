@@ -1,0 +1,24 @@
+package com.blibli.cart.entityDTO;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@AllArgsConstructor
+@Data
+@NoArgsConstructor
+@Builder
+public class ProductDTO {
+
+    private String productId;
+    private String productName;
+    private String productDesc;
+    private Double productUnitPrice;
+    private String category;
+    private List<String> images;
+
+}
