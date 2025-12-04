@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("api/cart")
 @Slf4j
 public class CartController {
 
@@ -32,7 +32,7 @@ public class CartController {
         cartService.addToCart(userId, request);
         return GenericResponse.<CartItemRequestDTO>builder()
                 .status("SUCCESS")
-                .message("Products fetched")
+                .message("Products fetched and addded to cart")
                 .data(request)
                 .build();
 
@@ -40,10 +40,15 @@ public class CartController {
 
     // Requirement: view shopping cart
     @GetMapping("/viewCart")
-    public ResponseEntity<CartResponseDTO> viewCart(
+    public GenericResponse<CartResponseDTO> viewCart(
             @RequestHeader("X-USER-ID") UUID userId) {
 
-        return ResponseEntity.ok(cartService.viewCart(userId));
+        //return ResponseEntity.ok(cartService.viewCart(userId));
+        System.out.println(userId+"--->");
+        return GenericResponse.<CartResponseDTO>builder()
+                .status("SUCCESS")
+                .data(cartService.viewCart(userId))
+                .build();
     }
     @DeleteMapping("/delete/{productId}")
     public GenericResponse<Object> deleteItem(
