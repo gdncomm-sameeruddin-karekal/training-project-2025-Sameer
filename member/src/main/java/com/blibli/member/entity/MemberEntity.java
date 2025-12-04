@@ -18,11 +18,17 @@ public class MemberEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
+    @Column(nullable = false)
     private String userName;
-    private String password;   // hashed password stored
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false, unique = true)// hashed password stored
     private String email;
+
+    private  String role;
     private Boolean isActive;
 
 }

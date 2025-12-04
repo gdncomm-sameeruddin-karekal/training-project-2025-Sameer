@@ -1,12 +1,15 @@
 package com.blibli.member.serviceImpl;
 
 import com.blibli.member.entity.MemberEntity;
+import com.blibli.member.entityDTO.LoginResponseDTO;
 import com.blibli.member.entityDTO.MemberLoginRequestDTO;
 import com.blibli.member.entityDTO.MemberRegisterRequestDTO;
 import com.blibli.member.entityDTO.MemberResponseDTO;
 import com.blibli.member.exception.MemberNotFoundException;
 import com.blibli.member.repository.MemberRepository;
 import com.blibli.member.service.MemberService;
+import com.blibli.member.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,10 +21,12 @@ import org.springframework.stereotype.Service;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository repository;
+    private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-    public MemberServiceImpl(MemberRepository repository, PasswordEncoder passwordEncoder) {
+    public MemberServiceImpl(MemberRepository repository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -49,7 +54,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberResponseDTO login(MemberLoginRequestDTO request) {
+    public LoginResponseDTO login(MemberLoginRequestDTO request) {
         log.info("Login request: {}", request.getUserName());
 
         MemberEntity member = repository.findByUserName(request.getUserName())
@@ -59,10 +64,33 @@ public class MemberServiceImpl implements MemberService {
             throw new RuntimeException("Invalid credentials");
         }
 
+        String token = jwtUtil.generateToken(
+                member.getId(),
+                member.getEmail(),
+                member.getRole()
+        );
+
+        return LoginResponseDTO.builder()
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .token(token)
+                .build();
+    }
+
+    @Override
+    public MemberResponseDTO getProfile(String token) {
+        Claims claims = jwtUtil.extractAllClaims(token);
+        String userId = claims.getSubject();
+
+        MemberEntity member = repository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         return MemberResponseDTO.builder()
+                .id(member.getId())
                 .userName(member.getUserName())
                 .email(member.getEmail())
-                .active(member.getIsActive())
+                .role(member.getRole())
                 .build();
+
     }
 }

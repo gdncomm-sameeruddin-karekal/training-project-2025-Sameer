@@ -1,19 +1,13 @@
 package com.blibli.member.controller;
 
-import com.blibli.member.entityDTO.GenericResponse;
-import com.blibli.member.entityDTO.MemberLoginRequestDTO;
-import com.blibli.member.entityDTO.MemberRegisterRequestDTO;
-import com.blibli.member.entityDTO.MemberResponseDTO;
+import com.blibli.member.entityDTO.*;
 import com.blibli.member.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/register")
+@RequestMapping("/api/member")
 public class MemberController {
 
     private final MemberService memberService;
@@ -35,12 +29,24 @@ public class MemberController {
 
     /** Customer Login */
     @PostMapping("/login")
-    public GenericResponse<MemberResponseDTO> login(@RequestBody MemberLoginRequestDTO request) {
-        log.info("Member login initiated");
+    //public GenericResponse<LoginResponseDTO> login(@RequestBody MemberLoginRequestDTO request) {
+    public LoginResponseDTO login(@RequestBody MemberLoginRequestDTO request){
+//        log.info("Member login initiated");
+//        return GenericResponse.<LoginResponseDTO>builder()
+//                .status("SUCCESS")
+//                .message("Login successful")
+//                .data(memberService.login(request))
+//                .build();
+        return memberService.login(request);
+    }
+    @GetMapping("/profile")
+    public GenericResponse<MemberResponseDTO> getProfile(@RequestHeader("Authorization") String header) {
+        String token = header.replace("Bearer ", "");
+        //return memberService.getProfile(token);
         return GenericResponse.<MemberResponseDTO>builder()
                 .status("SUCCESS")
-                .message("Login successful")
-                .data(memberService.login(request))
+                .message("Member registered")
+                .data(memberService.getProfile(token))
                 .build();
     }
 }
