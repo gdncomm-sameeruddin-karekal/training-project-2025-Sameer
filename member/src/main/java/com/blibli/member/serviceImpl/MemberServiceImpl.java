@@ -12,8 +12,14 @@ import com.blibli.member.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.TimeoutUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+
 
 @Slf4j
 @Service
@@ -23,6 +29,10 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository repository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private static final String BLACKLIST_PREFIX = "blacklisted:";
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     public MemberServiceImpl(MemberRepository repository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.repository = repository;
@@ -78,9 +88,9 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberResponseDTO getProfile(String token) {
-        Claims claims = jwtUtil.extractAllClaims(token);
-        String userId = claims.getSubject();
+    public MemberResponseDTO getProfile(String userId) {
+        //Claims claims = jwtUtil.extractAllClaims(token);
+        ///String userId = claims.getSubject();
 
         MemberEntity member = repository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -91,6 +101,24 @@ public class MemberServiceImpl implements MemberService {
                 .email(member.getEmail())
                 .role(member.getRole())
                 .build();
+
+    }
+
+    @Override
+    public void logout(String token) {
+
+        String jwt = token.replace("Bearer ", "");
+
+        long expiry = jwtUtil.getExpirationTime(jwt); // in milliseconds
+
+        redisTemplate.opsForValue().set(
+                "blacklist:" + jwt,
+                "1",
+                Duration.ofMillis(expiry)
+
+        );
+
+        log.info("Token blacklisted successfully");
 
     }
 }

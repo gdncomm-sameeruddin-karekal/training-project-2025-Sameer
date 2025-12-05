@@ -60,4 +60,9 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    public long getExpirationTime(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.getExpiration().getTime() - System.currentTimeMillis();
+    }
 }

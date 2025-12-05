@@ -3,6 +3,7 @@ package com.blibli.member.controller;
 import com.blibli.member.entityDTO.*;
 import com.blibli.member.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -40,13 +41,20 @@ public class MemberController {
         return memberService.login(request);
     }
     @GetMapping("/profile")
-    public GenericResponse<MemberResponseDTO> getProfile(@RequestHeader("Authorization") String header) {
-        String token = header.replace("Bearer ", "");
+    public GenericResponse<MemberResponseDTO> getProfile(@RequestHeader("X-User-Id") String userId) {
+        //String token = header.replace("Bearer ", "");
         //return memberService.getProfile(token);
         return GenericResponse.<MemberResponseDTO>builder()
                 .status("SUCCESS")
-                .message("Member registered")
-                .data(memberService.getProfile(token))
+                .message("Member profile")
+                .data(memberService.getProfile(userId))
                 .build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String header) {
+        String token = header.replace("Bearer ", "");
+        memberService.logout(token);
+        return ResponseEntity.ok("Logged out successfully");
     }
 }

@@ -12,4 +12,6 @@ public interface MemberService {
     LoginResponseDTO login(MemberLoginRequestDTO request);
     MemberResponseDTO getProfile(String token);
 
+    public void logout(String token);
+
 }

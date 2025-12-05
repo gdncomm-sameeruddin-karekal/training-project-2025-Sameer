@@ -12,13 +12,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-
     @Bean
     public PasswordEncoder passwordEncoder() {
 
         return new BCryptPasswordEncoder();
     }
-
 
     // OPTIONAL: This is for Enabling password at login page
     @Bean
@@ -30,11 +28,13 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/member/register",
                                 "/api/member/login",
+                                "/api/member/logout",
                                 "/api/member/health",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/api/product/**"
                         ).permitAll()
+                        .requestMatchers("/api/member/profile").authenticated()
 
                         // 🔐 everything else requires token
                         .anyRequest().authenticated()
