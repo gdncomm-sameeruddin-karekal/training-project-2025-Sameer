@@ -13,6 +13,6 @@ public interface ProductService {
 
     ProductResponseDTO createProduct(ProductRequestDTO productResponseDTO);
 
-    Page<ProductResponseDTO> searchProducts(String keyword, Pageable pageable);
+    Page<ProductResponseDTO> searchProducts(String keyword, Pageable pageable) throws InterruptedException;
     ProductResponseDTO viewProductDetail(ObjectId productId);
 }

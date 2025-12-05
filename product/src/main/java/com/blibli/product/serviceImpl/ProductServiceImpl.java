@@ -8,6 +8,7 @@ import com.blibli.product.service.ProductService;
 import com.blibli.product.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponseDTO> searchProducts(String keyword, Pageable pageable) {
+    @Cacheable(value = "product", key = "#keyword")
+    public Page<ProductResponseDTO> searchProducts(String keyword, Pageable pageable) throws InterruptedException {
+
+        Thread.sleep(5000);
+        try{
+            System.out.println("getting data from Db");
+        } catch (Exception e) {
+            System.out.println("reached wait limit");
+            throw new RuntimeException(e);
+
+        }
 
         log.info("Searching products for keyword: {}", keyword);
         Page<Product> fetchedProduct = productRepository.searchByNameRegex(keyword,pageable);

@@ -37,7 +37,7 @@ public class ProductController {
         public GenericResponse<Page<ProductResponseDTO>> searchProduct(
                 @RequestParam String keyword,
                 @RequestParam(defaultValue = "0") int page,
-                @RequestParam(defaultValue = "10")int size ){
+                @RequestParam(defaultValue = "10")int size ) throws InterruptedException {
         log.info("Search request for keyword: {}", keyword);
 
         Pageable pageable = PageRequest.of(page,size);
